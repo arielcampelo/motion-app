@@ -16,10 +16,13 @@ const navigateToModality = (id) => {
 <template>
   <div class="container animate-fade-in">
     <header class="dashboard-header">
-      <div>
-        <h1 class="greeting">Olá, Atleta! 👋</h1>
-        <p class="subtitle">O que vamos treinar hoje?</p>
+      <div class="logo-text">
+        <span class="motion-text">Motion</span>
       </div>
+      <button class="btn-stats glass-panel" @click="router.push('/statistics')">
+        <span class="icon">📊</span>
+        <span>Estatísticas</span>
+      </button>
     </header>
 
     <section class="modalities-section">
@@ -47,27 +50,67 @@ const navigateToModality = (id) => {
 
 <style scoped>
 .dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
   margin-bottom: 3rem;
   margin-top: 2rem;
 }
 
-.greeting {
-  font-size: 3rem;
-  margin-bottom: 0.5rem;
-  background: linear-gradient(to right, #ffffff, #9ca3af);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+.btn-stats {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 20px;
+  font-weight: 600;
+  color: var(--text-primary);
+  border: 1px solid var(--border-light);
+  transition: all var(--transition-normal);
 }
 
-.subtitle {
-  color: var(--text-secondary);
-  font-size: 1.1rem;
+.btn-stats:hover {
+  background: rgba(255, 255, 255, 0.05);
+  transform: translateY(-2px);
+  border-color: var(--accent-primary);
+}
+
+@media (max-width: 600px) {
+  .dashboard-header {
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+  .btn-stats {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+.motion-text {
+  font-size: 2.5rem;
+  font-weight: 800;
+  font-family: var(--font-heading);
+  background: var(--accent-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  letter-spacing: -0.04em;
 }
 
 .modality-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
   gap: 1.5rem;
+}
+
+@media (max-width: 600px) {
+  .greeting {
+    font-size: 2.2rem;
+  }
+  .modality-grid {
+    grid-template-columns: 1fr;
+  }
+  .modality-card {
+    padding: 1.25rem;
+  }
 }
 
 .modality-card {

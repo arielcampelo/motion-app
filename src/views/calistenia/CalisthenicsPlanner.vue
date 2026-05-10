@@ -253,9 +253,25 @@ h3 {
   gap: 1rem;
   align-items: flex-end;
   background: rgba(255,255,255,0.02);
-  padding: 1rem;
+  padding: 1.5rem;
   border-radius: var(--radius-md);
   border: 1px solid var(--border-subtle);
+}
+
+@media (max-width: 768px) {
+  .exercise-row {
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+  
+  .exercise-row .form-group:nth-child(2) {
+    grid-column: span 2;
+  }
+  
+  .delete-btn {
+    grid-column: 2;
+    justify-self: end;
+  }
 }
 
 .btn-icon {

@@ -151,6 +151,18 @@ const goBack = () => router.push(`/modality/${modalityId.value}`)
   </div>
 </template>
 
+<style>
+/* Global fix for container on mobile */
+@media (max-width: 600px) {
+  .container {
+    padding: 1rem !important;
+  }
+  .form-container {
+    padding: 1.25rem !important;
+  }
+}
+</style>
+
 <style scoped>
 .btn-back {
   color: var(--text-tertiary);
@@ -191,6 +203,13 @@ const goBack = () => router.push(`/modality/${modalityId.value}`)
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 1.5rem;
+}
+
+@media (max-width: 600px) {
+  .form-row {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
 }
 
 label {

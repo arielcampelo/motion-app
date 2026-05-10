@@ -8,24 +8,22 @@ const route = useRoute()
 const store = useWorkoutStore()
 
 const modalityId = computed(() => route.params.id)
-const modalityName = computed(() => store.modalities.find(m => m.id === modalityId.value)?.name || 'Malabarismo')
+const modality = computed(() => store.modalities.find(m => m.id === 'escalada'))
 
-const sessionName = ref(`Sessão de Malabarismo`)
+const sessionName = ref(`Sessão de Escalada`)
 const exercises = ref([
-  { id: Date.now(), instrument: 'bolas', name: 'Cascade', customName: '', type: 'tempo', target: 60, sets: 1 }
+  { id: Date.now(), type: 'Boulder', grade: 'V1', tops: 1, attempts: 1 }
 ])
 
-const availableTricks = computed(() => store.exercises.malabarismo || { bolas: [], claves: [] })
+const availableTypes = computed(() => store.exercises.escalada || ['Boulder', 'Top Rope', 'Guiada'])
 
 const addExercise = () => {
   exercises.value.push({
     id: Date.now(),
-    instrument: 'bolas',
-    name: 'Cascade',
-    customName: '',
-    type: 'tempo',
-    target: 60,
-    sets: 1
+    type: 'Boulder',
+    grade: 'V1',
+    tops: 1,
+    attempts: 1
   })
 }
 
@@ -36,22 +34,18 @@ const removeExercise = (index) => {
 const startSession = () => {
   const sessionId = Date.now().toString()
   
-  // Resolve exercise names for "outro"
-  const finalExercises = exercises.value.map(ex => ({
-    ...ex,
-    name: ex.name === 'outro' ? ex.customName || 'Exercício Livre' : ex.name
-  }))
-
   store.activeSession = {
     id: sessionId,
     name: sessionName.value,
-    modalityId: 'malabarismo',
-    exercises: finalExercises
+    modalityId: 'escalada',
+    exercises: [...exercises.value]
   }
-  router.push(`/modality/malabarismo/session/${sessionId}`)
+  // For now, redirect to hub since active session view doesn't exist for climbing yet
+  router.push(`/modality/escalada`)
+  alert('Sessão iniciada! (Em desenvolvimento)')
 }
 
-const goBack = () => router.push(`/modality/malabarismo`)
+const goBack = () => router.push(`/modality/escalada`)
 </script>
 
 <template>
@@ -59,8 +53,8 @@ const goBack = () => router.push(`/modality/malabarismo`)
     <button @click="goBack" class="btn-back">← Voltar</button>
 
     <header class="section-header">
-      <h2>Planejar: {{ modalityName }}</h2>
-      <button class="btn-primary custom-btn" @click="startSession">Iniciar Sessão Agora</button>
+      <h2>Planejar: {{ modality?.name }}</h2>
+      <button class="btn-primary custom-btn" @click="startSession">Iniciar Sessão</button>
     </header>
 
     <div class="form-container glass-panel">
@@ -70,55 +64,37 @@ const goBack = () => router.push(`/modality/malabarismo`)
       </div>
 
       <div class="divider"></div>
-      <h3>Exercícios Planejados</h3>
+      <h3>Vias / Boulders Planejados</h3>
       
       <div class="exercises-list">
         <div v-for="(ex, index) in exercises" :key="ex.id" class="exercise-row">
           <div class="form-group">
-            <label>Instrumento</label>
-            <select v-model="ex.instrument" class="input-field select-field">
-              <option value="bolas">Bolas</option>
-              <option value="claves">Claves</option>
-              <option value="outro">Outro</option>
-            </select>
-          </div>
-
-          <div class="form-group" v-if="ex.instrument !== 'outro'">
-            <label>Truque/Exercício</label>
-            <select v-model="ex.name" class="input-field select-field">
-              <option v-for="trick in availableTricks[ex.instrument]" :key="trick" :value="trick">{{ trick }}</option>
-              <option value="outro">Outro (Digitar)</option>
-            </select>
-          </div>
-
-          <div class="form-group" v-if="ex.instrument === 'outro' || ex.name === 'outro'">
-            <label>Nome do Exercício</label>
-            <input v-model="ex.customName" type="text" class="input-field" placeholder="Ex: Argolas" />
-          </div>
-          
-          <div class="form-group">
-            <label>Tipo de Objetivo</label>
+            <label>Tipo</label>
             <select v-model="ex.type" class="input-field select-field">
-              <option value="tempo">Tempo</option>
-              <option value="contagem">Contagem (Catches)</option>
+              <option v-for="type in availableTypes" :key="type" :value="type">{{ type }}</option>
             </select>
-          </div>
-          
-          <div class="form-group">
-            <label>{{ ex.type === 'tempo' ? 'Duração (Segundos)' : 'Alvo (Catches)' }}</label>
-            <input v-model="ex.target" type="number" min="1" class="input-field" />
           </div>
 
           <div class="form-group">
-            <label>Séries</label>
-            <input v-model="ex.sets" type="number" min="1" class="input-field" />
+            <label>Grau</label>
+            <input v-model="ex.grade" type="text" class="input-field" placeholder="Ex: V3 ou 6a" />
+          </div>
+          
+          <div class="form-group">
+            <label>Tops Alvo</label>
+            <input v-model="ex.tops" type="number" min="1" class="input-field" />
+          </div>
+
+          <div class="form-group">
+            <label>Tentativas Max</label>
+            <input v-model="ex.attempts" type="number" min="1" class="input-field" />
           </div>
 
           <button @click="removeExercise(index)" class="btn-icon delete-btn">×</button>
         </div>
       </div>
 
-      <button @click="addExercise" class="btn-outline">+ Adicionar Exercício</button>
+      <button @click="addExercise" class="btn-outline">+ Adicionar Objetivo</button>
     </div>
   </div>
 </template>
@@ -142,11 +118,8 @@ const goBack = () => router.push(`/modality/malabarismo`)
 }
 
 .custom-btn {
-  background: #8b5cf6;
-  box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4);
-}
-.custom-btn:hover {
-  box-shadow: 0 6px 20px rgba(139, 92, 246, 0.6);
+  background: #f59e0b;
+  box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4);
 }
 
 .form-container {
@@ -178,11 +151,7 @@ label {
 }
 .input-field:focus {
   outline: none;
-  border-color: #8b5cf6;
-}
-
-.select-field {
-  appearance: none;
+  border-color: #f59e0b;
 }
 
 .divider {
@@ -205,7 +174,7 @@ h3 {
 
 .exercise-row {
   display: grid;
-  grid-template-columns: 1fr 1.5fr 1fr 1fr 0.8fr 40px;
+  grid-template-columns: 1fr 1fr 0.8fr 0.8fr 40px;
   gap: 1rem;
   align-items: flex-end;
   background: rgba(255,255,255,0.02);
@@ -218,15 +187,6 @@ h3 {
   .exercise-row {
     grid-template-columns: 1fr 1fr;
     gap: 1rem;
-  }
-  
-  .exercise-row .form-group:nth-child(2) {
-    grid-column: span 2;
-  }
-  
-  .delete-btn {
-    grid-column: 2;
-    justify-self: end;
   }
 }
 
@@ -251,12 +211,12 @@ h3 {
   padding: 12px;
   border: 1px dashed var(--border-light);
   border-radius: var(--radius-sm);
-  color: #8b5cf6;
+  color: #f59e0b;
   font-weight: 500;
   transition: all var(--transition-fast);
 }
 .btn-outline:hover {
-  background: rgba(139, 92, 246, 0.05);
+  background: rgba(245, 158, 11, 0.05);
   border-style: solid;
 }
 </style>

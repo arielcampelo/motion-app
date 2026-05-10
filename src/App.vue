@@ -1,5 +1,17 @@
 <script setup>
+import { onMounted } from 'vue'
 import { RouterView } from 'vue-router'
+import { useUserStore } from './store/user'
+
+const userStore = useUserStore()
+import { useAIStore } from './store/ai'
+
+const aiStore = useAIStore()
+
+onMounted(() => {
+  // Pré-carrega o modelo de IA assim que o app abre
+  aiStore.initModel()
+})
 </script>
 
 <template>
@@ -12,7 +24,9 @@ import { RouterView } from 'vue-router'
         </div>
         <div class="nav-links">
           <router-link to="/">Dashboard</router-link>
-          <!-- <router-link to="/workout/new" class="btn-primary" style="padding: 8px 16px; font-size: 0.9rem;">+ Novo Treino</router-link> -->
+          <router-link v-if="userStore.user.name" to="/onboarding" class="profile-link">
+            👤 {{ userStore.user.name }}
+          </router-link>
         </div>
       </div>
     </nav>
@@ -48,6 +62,12 @@ import { RouterView } from 'vue-router'
   display: flex;
   justify-content: space-between;
   align-items: center;
+}
+
+@media (max-width: 600px) {
+  .nav-content {
+    padding: 1rem;
+  }
 }
 
 .logo {
@@ -95,6 +115,14 @@ import { RouterView } from 'vue-router'
 
 .nav-links a.btn-primary {
   color: white;
+}
+
+.profile-link {
+  background: rgba(255, 255, 255, 0.05);
+  padding: 6px 12px;
+  border-radius: var(--radius-full);
+  font-size: 0.85rem;
+  border: 1px solid var(--border-light);
 }
 
 .main-content {

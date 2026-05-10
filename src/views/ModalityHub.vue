@@ -16,7 +16,8 @@ const workouts = computed(() =>
 
 const goBack = () => router.push('/')
 const handlePrimaryAction = () => {
-  if (modalityId.value === 'malabarismo' || modalityId.value === 'calistenia') {
+  const planners = ['malabarismo', 'calistenia', 'escalada', 'natacao']
+  if (planners.includes(modalityId.value)) {
     router.push(`/modality/${modalityId.value}/planner`)
   } else {
     router.push(`/modality/${modalityId.value}/new`)
@@ -37,7 +38,7 @@ const handlePrimaryAction = () => {
         </div>
       </div>
       <button class="btn-primary custom-bg" @click="handlePrimaryAction">
-        {{ (modalityId === 'malabarismo' || modalityId === 'calistenia') ? '📅 Planejar Sessão' : '+ Registrar Treino' }}
+        {{ ['malabarismo', 'calistenia', 'escalada', 'natacao'].includes(modalityId) ? '📅 Planejar Sessão' : '+ Registrar Treino' }}
       </button>
     </header>
 
@@ -100,6 +101,8 @@ const handlePrimaryAction = () => {
   margin-bottom: 3rem;
   padding-bottom: 2rem;
   border-bottom: 1px solid var(--border-light);
+  gap: 1rem;
+  flex-wrap: wrap;
 }
 
 .mod-title-area {
