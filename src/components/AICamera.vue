@@ -120,9 +120,6 @@ const detectPose = async () => {
     drawLine(leftShoulder, rightShoulder)
 
     if (props.mode === 'pushup') {
-      let activeSide = null
-      if (leftElbow && leftElbow.score > 0.3 && rightElbow && rightElbow.score > 0.3) {
-        activeSide = leftElbow.score > rightElbow.score ? 'left' : 'right'
       const shoulder = keypoints.find(k => k.name === 'left_shoulder')
       const elbow = keypoints.find(k => k.name === 'left_elbow')
       const wrist = keypoints.find(k => k.name === 'left_wrist')

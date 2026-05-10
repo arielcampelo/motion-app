@@ -2,15 +2,23 @@ import { defineStore } from 'pinia'
 
 export const useUserStore = defineStore('user', {
   state: () => {
-    const savedUser = localStorage.getItem('motion-user')
-    return {
-      user: savedUser ? JSON.parse(savedUser) : {
-        name: '',
-        level: 'Iniciante', // Iniciante, Intermediário, Avançado
-        goal: '',
-        avatar: '👤'
-      }
+    let user = {
+      name: '',
+      level: 'Iniciante',
+      goal: '',
+      avatar: '👤'
     }
+    
+    try {
+      const savedUser = localStorage.getItem('motion-user')
+      if (savedUser && savedUser !== 'undefined') {
+        user = { ...user, ...JSON.parse(savedUser) }
+      }
+    } catch (e) {
+      console.warn('Erro ao carregar usuário do localStorage:', e)
+    }
+
+    return { user }
   },
   actions: {
     setUser(userData) {
