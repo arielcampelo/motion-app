@@ -1,12 +1,26 @@
 <script setup>
-import { onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { RouterView } from 'vue-router'
-import { useUserStore } from './store/user'
+import { useAIStore } from './store/ai'
+import { audioService } from './utils/audio'
 
 const userStore = useUserStore()
-import { useAIStore } from './store/ai'
-
 const aiStore = useAIStore()
+const audioMode = ref(audioService.mode)
+
+const cycleAudioMode = () => {
+  const modes = ['all', 'beeps', 'none']
+  const currentIndex = modes.indexOf(audioMode.value)
+  const nextIndex = (currentIndex + 1) % modes.length
+  audioMode.value = modes[nextIndex]
+  audioService.setMode(audioMode.value)
+}
+
+const audioIcon = computed(() => {
+  if (audioMode.value === 'all') return '🔊'
+  if (audioMode.value === 'beeps') return '🔔'
+  return '🔇'
+})
 
 onMounted(() => {
   // Pré-carrega o modelo de IA assim que o app abre
@@ -23,6 +37,9 @@ onMounted(() => {
           <span>Motion</span>
         </div>
         <div class="nav-links">
+          <button class="btn-audio" @click="cycleAudioMode" :title="`Som: ${audioMode}`">
+            {{ audioIcon }}
+          </button>
           <router-link to="/">Dashboard</router-link>
           <router-link v-if="userStore.user.name" to="/onboarding" class="profile-link">
             👤 {{ userStore.user.name }}
@@ -115,6 +132,20 @@ onMounted(() => {
 
 .nav-links a.btn-primary {
   color: white;
+}
+
+.btn-audio {
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  padding: 8px;
+  cursor: pointer;
+  filter: grayscale(1);
+  transition: filter 0.3s;
+}
+
+.btn-audio:hover {
+  filter: grayscale(0);
 }
 
 .profile-link {

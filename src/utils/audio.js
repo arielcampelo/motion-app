@@ -2,15 +2,23 @@
 class AudioService {
   constructor() {
     this.synth = window.speechSynthesis
-    this.enabled = true
+    // modes: 'all', 'beeps', 'none'
+    this.mode = localStorage.getItem('motion-audio-mode') || 'all'
+  }
+
+  setMode(mode) {
+    this.mode = mode
+    localStorage.setItem('motion-audio-mode', mode)
+    
+    // Feedback for the change
+    if (mode === 'all') this.speak('Som ativado')
+    if (mode === 'beeps') this.beep(440, 200)
   }
 
   speak(text) {
-    if (!this.enabled || !this.synth) return
+    if (this.mode !== 'all' || !this.synth) return
     
-    // Cancel previous speech to avoid queueing up old messages
     this.synth.cancel()
-    
     const utterance = new SpeechSynthesisUtterance(text)
     utterance.lang = 'pt-BR'
     utterance.rate = 1.1
@@ -18,7 +26,7 @@ class AudioService {
   }
 
   beep(frequency = 440, duration = 200) {
-    if (!this.enabled) return
+    if (this.mode === 'none') return
     
     try {
       const audioCtx = new (window.AudioContext || window.webkitAudioContext)()
