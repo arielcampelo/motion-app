@@ -1,3 +1,4 @@
+<script setup>
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useWorkoutStore } from '../../store/workout'
