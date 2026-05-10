@@ -2,6 +2,7 @@ import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useWorkoutStore } from '../../store/workout'
 import { useUserStore } from '../../store/user'
+import { audioService } from '../../utils/audio'
 
 const router = useRouter()
 const store = useWorkoutStore()
@@ -81,19 +82,23 @@ const startBlock = (index) => {
   if (block.type === 'tempo') {
     block.state = 'countdown'
     block.countdown = 3
+    audioService.speak(`Preparar para ${block.name}`)
     
     const countInterval = setInterval(() => {
       if (!isPaused.value) {
+        audioService.playCountdown(block.countdown)
         block.countdown--
         if (block.countdown <= 0) {
           clearInterval(countInterval)
           block.state = 'running'
+          audioService.playStart()
           startMainTimer(block)
         }
       }
     }, 1000)
   } else {
     block.state = 'running'
+    audioService.playStart()
   }
 }
 
@@ -125,9 +130,17 @@ const startRest = (nextIndex) => {
   restTimeLeft.value = getRestDuration()
   currentBlockIndex.value = nextIndex
   
+  const nextBlock = sessionBlocks.value[nextIndex]
+  audioService.speak(`Concluído. Recuperação de ${restTimeLeft.value} segundos. Próximo: ${nextBlock.name}`)
+  
   restInterval = setInterval(() => {
     if (!isPaused.value) {
       restTimeLeft.value--
+      
+      if (restTimeLeft.value > 0 && restTimeLeft.value <= 3) {
+        audioService.playCountdown(restTimeLeft.value)
+      }
+
       if (restTimeLeft.value <= 0) {
         stopRest()
         startBlock(nextIndex)
@@ -165,6 +178,7 @@ const finishSession = () => {
       completed: sessionBlocks.value.filter(b => b.state === 'done').length
     }
   })
+  audioService.speak('Sessão finalizada! Ótimo treino!')
   store.activeSession = null
   router.push('/modality/malabarismo')
 }

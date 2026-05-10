@@ -3,6 +3,7 @@ import { useRouter } from 'vue-router'
 import { useWorkoutStore } from '../../store/workout'
 import { useUserStore } from '../../store/user'
 import AICamera from '../../components/AICamera.vue'
+import { audioService } from '../../utils/audio'
 
 const router = useRouter()
 const store = useWorkoutStore()
@@ -81,6 +82,8 @@ const startBlock = (index) => {
   expandedId.value = block.id
   useAICamera.value = false
   isPaused.value = false
+  
+  audioService.playStart()
 }
 
 const completeBlock = (block) => {
@@ -102,9 +105,17 @@ const startRest = (nextIndex) => {
   restTimeLeft.value = getRestDuration()
   currentBlockIndex.value = nextIndex
   
+  const nextBlock = sessionBlocks.value[nextIndex]
+  audioService.speak(`Série concluída. Descanso de ${restTimeLeft.value} segundos. Próximo exercício: ${nextBlock.name}`)
+  
   restInterval = setInterval(() => {
     if (!isPaused.value) {
       restTimeLeft.value--
+      
+      if (restTimeLeft.value > 0 && restTimeLeft.value <= 3) {
+        audioService.playCountdown(restTimeLeft.value)
+      }
+
       if (restTimeLeft.value <= 0) {
         stopRest()
         startBlock(nextIndex)
@@ -149,6 +160,7 @@ const finishSession = () => {
       blocks: completedBlocks
     }
   })
+  audioService.speak('Treino finalizado! Parabéns pelo esforço!')
   store.activeSession = null
   router.push('/modality/calistenia')
 }
