@@ -2,6 +2,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { RouterView } from 'vue-router'
 import { useAIStore } from './store/ai'
+import { useUserStore } from './store/user'
 import { audioService } from './utils/audio'
 
 const userStore = useUserStore()
