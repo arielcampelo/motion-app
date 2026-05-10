@@ -1,7 +1,7 @@
-<script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useWorkoutStore } from '../../store/workout'
+import { useUserStore } from '../../store/user'
 
 const router = useRouter()
 const store = useWorkoutStore()
@@ -46,8 +46,22 @@ const onDrop = (index) => {
   draggedItem.value = null
 }
 
+const userStore = useUserStore()
+const currentBlockIndex = ref(0)
+const isPaused = ref(false)
+const isResting = ref(false)
+const restTimeLeft = ref(0)
+let restInterval = null
+
 const expandedId = ref(null)
 let timerInterval = null
+
+const getRestDuration = () => {
+  const level = userStore.user.level
+  if (level === 'Avançado') return 15 // Juggling needs less rest
+  if (level === 'Intermediário') return 25
+  return 40
+}
 
 const toggleExpand = (id) => {
   if (expandedId.value === id) {
@@ -57,17 +71,25 @@ const toggleExpand = (id) => {
   }
 }
 
-const startBlock = (block) => {
+const startBlock = (index) => {
+  if (isResting.value) stopRest()
+  currentBlockIndex.value = index
+  const block = sessionBlocks.value[index]
+  expandedId.value = block.id
+  isPaused.value = false
+
   if (block.type === 'tempo') {
     block.state = 'countdown'
     block.countdown = 3
     
     const countInterval = setInterval(() => {
-      block.countdown--
-      if (block.countdown <= 0) {
-        clearInterval(countInterval)
-        block.state = 'running'
-        startMainTimer(block)
+      if (!isPaused.value) {
+        block.countdown--
+        if (block.countdown <= 0) {
+          clearInterval(countInterval)
+          block.state = 'running'
+          startMainTimer(block)
+        }
       }
     }, 1000)
   } else {
@@ -88,7 +110,40 @@ const startMainTimer = (block) => {
 const completeBlock = (block) => {
   if (timerInterval) clearInterval(timerInterval)
   block.state = 'done'
-  expandedId.value = null
+  
+  const nextIndex = sessionBlocks.value.findIndex((b, idx) => b.state === 'idle' && idx > sessionBlocks.value.indexOf(block))
+  
+  if (nextIndex !== -1) {
+    startRest(nextIndex)
+  } else {
+    expandedId.value = null
+  }
+}
+
+const startRest = (nextIndex) => {
+  isResting.value = true
+  restTimeLeft.value = getRestDuration()
+  currentBlockIndex.value = nextIndex
+  
+  restInterval = setInterval(() => {
+    if (!isPaused.value) {
+      restTimeLeft.value--
+      if (restTimeLeft.value <= 0) {
+        stopRest()
+        startBlock(nextIndex)
+      }
+    }
+  }, 1000)
+}
+
+const stopRest = () => {
+  isResting.value = false
+  if (restInterval) clearInterval(restInterval)
+  restInterval = null
+}
+
+const togglePause = () => {
+  isPaused.value = !isPaused.value
 }
 
 const formatTime = (seconds) => {
@@ -118,9 +173,25 @@ const finishSession = () => {
 <template>
   <div v-if="session" class="container animate-fade-in">
     <header class="section-header">
-      <h2>{{ session.name }}</h2>
+      <div class="header-main">
+        <h2>{{ session.name }}</h2>
+        <div class="session-controls">
+          <button v-if="expandedId" class="btn-icon-round" :class="{ 'is-paused': isPaused }" @click="togglePause">
+            {{ isPaused ? '▶' : '⏸' }}
+          </button>
+        </div>
+      </div>
       <button class="btn-primary finish-btn" @click="finishSession">Finalizar Treino</button>
     </header>
+
+    <div v-if="isResting" class="rest-overlay animate-fade-in">
+      <div class="rest-content glass-panel">
+        <span class="rest-title">Recuperação</span>
+        <div class="rest-timer">{{ restTimeLeft }}s</div>
+        <p>Próximo: {{ sessionBlocks[currentBlockIndex]?.name }}</p>
+        <button class="btn-outline" @click="restTimeLeft = 0">Pular</button>
+      </div>
+    </div>
 
     <div class="blocks-container">
       <div 
@@ -151,8 +222,13 @@ const finishSession = () => {
 
         <div v-if="expandedId === block.id && block.state !== 'done'" class="block-actions animate-fade-in">
           
-          <div v-if="block.state === 'idle'" class="action-center">
-            <button class="btn-action start-btn" @click="startBlock(block)">▶ Iniciar</button>
+          <div v-if="isPaused" class="pause-notice">
+            <p>Sessão Pausada</p>
+            <button class="btn-primary" @click="togglePause">Retomar</button>
+          </div>
+
+          <div v-else-if="block.state === 'idle'" class="action-center">
+            <button class="btn-action start-btn" @click="startBlock(index)">▶ Iniciar</button>
           </div>
 
           <div v-else-if="block.state === 'countdown'" class="action-center">
@@ -321,5 +397,90 @@ const finishSession = () => {
   color: var(--text-tertiary);
   font-style: italic;
   margin-bottom: 1rem;
+}
+
+/* Reusing shared session styles */
+.header-main {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.btn-icon-round {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid var(--border-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  color: white;
+}
+
+.btn-icon-round.is-paused {
+  background: var(--accent-primary);
+  border-color: var(--accent-primary);
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% { box-shadow: 0 0 0 0 rgba(139, 92, 246, 0.4); }
+  70% { box-shadow: 0 0 0 10px rgba(139, 92, 246, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(139, 92, 246, 0); }
+}
+
+.rest-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 17, 21, 0.9);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  backdrop-filter: blur(8px);
+}
+
+.rest-content {
+  max-width: 400px;
+  width: 100%;
+  padding: 3rem;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+  border-color: #8b5cf6;
+}
+
+.rest-title {
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-size: 0.9rem;
+  color: #8b5cf6;
+  font-weight: 700;
+}
+
+.rest-timer {
+  font-size: 5rem;
+  font-weight: 800;
+  font-family: var(--font-heading);
+  line-height: 1;
+}
+
+.pause-notice {
+  text-align: center;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.pause-notice p {
+  font-size: 1.2rem;
+  color: var(--text-secondary);
 }
 </style>
