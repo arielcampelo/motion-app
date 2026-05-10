@@ -101,10 +101,11 @@ const goBack = () => router.push(`/modality/malabarismo`)
             <select v-model="ex.type" class="input-field select-field">
               <option value="tempo">Tempo</option>
               <option value="contagem">Contagem (Catches)</option>
+              <option value="livre">Treino Livre (IA aberta)</option>
             </select>
           </div>
           
-          <div class="form-group">
+          <div class="form-group" v-if="ex.type !== 'livre'">
             <label>{{ ex.type === 'tempo' ? 'Duração (Segundos)' : 'Alvo (Catches)' }}</label>
             <input v-model="ex.target" type="number" min="1" class="input-field" />
           </div>

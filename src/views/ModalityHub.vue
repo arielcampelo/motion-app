@@ -15,6 +15,7 @@ const workouts = computed(() =>
 )
 
 const goBack = () => router.push('/')
+
 const handlePrimaryAction = () => {
   const planners = ['malabarismo', 'calistenia', 'escalada', 'natacao']
   if (planners.includes(modalityId.value)) {
@@ -22,6 +23,19 @@ const handlePrimaryAction = () => {
   } else {
     router.push(`/modality/${modalityId.value}/new`)
   }
+}
+
+const startFreeJuggling = () => {
+  const sessionId = Date.now().toString()
+  store.activeSession = {
+    id: sessionId,
+    name: 'Treino Livre de Malabarismo',
+    modalityId: 'malabarismo',
+    exercises: [
+      { id: Date.now(), name: 'Treino Livre', instrument: 'bolas', type: 'livre', target: 0, sets: 1 }
+    ]
+  }
+  router.push(`/modality/malabarismo/session/${sessionId}`)
 }
 </script>
 
@@ -37,9 +51,14 @@ const handlePrimaryAction = () => {
           <p class="subtitle">{{ modality.desc }}</p>
         </div>
       </div>
-      <button class="btn-primary custom-bg" @click="handlePrimaryAction">
-        {{ ['malabarismo', 'calistenia', 'escalada', 'natacao'].includes(modalityId) ? '📅 Planejar Sessão' : '+ Registrar Treino' }}
-      </button>
+      <div class="header-actions">
+        <button v-if="modalityId === 'malabarismo'" class="btn-outline free-btn" @click="startFreeJuggling">
+          📹 Câmera Livre
+        </button>
+        <button class="btn-primary custom-bg" @click="handlePrimaryAction">
+          {{ ['malabarismo', 'calistenia', 'escalada', 'natacao'].includes(modalityId) ? '📅 Planejar Sessão' : '+ Registrar Treino' }}
+        </button>
+      </div>
     </header>
 
     <section class="workouts-history">
@@ -124,6 +143,22 @@ const handlePrimaryAction = () => {
 .custom-bg:hover {
   opacity: 1;
   box-shadow: 0 6px 20px var(--mod-color);
+}
+
+.header-actions {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.free-btn {
+  border-color: rgba(255, 255, 255, 0.2);
+  color: white;
+}
+
+.free-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: white;
 }
 
 .empty-state {

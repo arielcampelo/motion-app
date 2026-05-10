@@ -4,6 +4,7 @@ import { useRouter } from 'vue-router'
 import { useWorkoutStore } from '../../store/workout'
 import { useUserStore } from '../../store/user'
 import { audioService } from '../../utils/audio'
+import JugglingAICamera from '../../components/JugglingAICamera.vue'
 
 const router = useRouter()
 const store = useWorkoutStore()
@@ -227,7 +228,11 @@ const finishSession = () => {
           <div class="block-drag-handle">⋮⋮</div>
           <div class="block-info">
             <h3>{{ block.name }}</h3>
-            <span class="block-meta">Série {{ block.setNumber }}/{{ block.totalSets }} • {{ block.type === 'tempo' ? formatTime(block.target) : `${block.target} catches` }}</span>
+            <span class="block-meta">Série {{ block.setNumber }}/{{ block.totalSets }} • {{ 
+              block.type === 'tempo' ? formatTime(block.target) : 
+              block.type === 'livre' ? 'Treino Livre' :
+              `${block.target} catches` 
+            }}</span>
           </div>
           <div class="block-status">
             <span v-if="block.state === 'done'">✅</span>
@@ -255,11 +260,18 @@ const finishSession = () => {
             <div v-if="block.type === 'tempo'">
               <div class="big-number timer">{{ formatTime(block.timeLeft) }}</div>
             </div>
-            <div v-else>
-              <div class="countdown-text">Contagem Iniciada</div>
-              <p class="model-hint">O modelo de visão computacional registrará os catches (Em breve)</p>
+            <div v-else class="ai-session-wrapper">
+              <JugglingAICamera 
+                :active="block.state === 'running'" 
+                :targetCount="block.type === 'livre' ? 0 : block.target"
+                :isFreeMode="block.type === 'livre'"
+                @count-updated="(newCount) => block.currentCount = newCount"
+                @completed="completeBlock(block)"
+              />
+              <div class="manual-fallback">
+                <button class="btn-text" @click="completeBlock(block)">✓ Concluir Manualmente</button>
+              </div>
             </div>
-            <button class="btn-action complete-btn" @click="completeBlock(block)">✓ Concluir</button>
           </div>
 
           <div v-else-if="block.state === 'pending_confirmation'" class="action-center">
@@ -496,6 +508,32 @@ const finishSession = () => {
 
 .pause-notice p {
   font-size: 1.2rem;
+  color: var(--text-secondary);
+}
+
+.ai-session-wrapper {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.manual-fallback {
+  display: flex;
+  justify-content: center;
+}
+
+.btn-text {
+  background: none;
+  border: none;
+  color: var(--text-tertiary);
+  font-size: 0.9rem;
+  text-decoration: underline;
+  cursor: pointer;
+  padding: 0.5rem;
+}
+
+.btn-text:hover {
   color: var(--text-secondary);
 }
 </style>
