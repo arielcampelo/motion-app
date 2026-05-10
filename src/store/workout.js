@@ -16,9 +16,9 @@ export const useWorkoutStore = defineStore('workout', {
       exercises: {
         'malabarismo': { bolas: jugglingTricks.bolas, claves: jugglingTricks.claves },
         'calistenia': {
-          superior: ['Flexão', 'Barra Fixa', 'Muscle Up', 'Dips', 'Front Lever', 'Planche'],
+          superior: ['Flexão', 'Flexão Inclinada', 'Barra Fixa', 'Barra (Pendurado)', 'Barra Australiana', 'Suporte nas Argolas', 'Muscle Up', 'Dips', 'Front Lever', 'Planche'],
           core: ['L-Sit', 'Prancha', 'Dragon Flag', 'Hollow Body', 'Abdominal Infra'],
-          inferior: ['Agachamento Livre', 'Pistol Squat', 'Bulgarian Split Squat', 'Nordic Curl'],
+          inferior: ['Agachamento (Squat)', 'Pistol Squat', 'Bulgarian Split Squat', 'Nordic Curl'],
           cardio: ['Polichinelo', 'Burpee', 'Montanha Alpinista']
         },
         'escalada': ['Boulder', 'Top Rope', 'Guiada', 'Campus Board'],

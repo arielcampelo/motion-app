@@ -243,6 +243,7 @@ onUnmounted(() => {
                 <button class="btn-action complete-btn" @click="completeBlock(block)">✓ Concluir Manualmente</button>
                 <button v-if="block.name.toLowerCase().includes('flexão') || block.name.toLowerCase().includes('push')" class="btn-action ai-btn" @click="enableAICamera('pushup')">🤖 Contar Flexões</button>
                 <button v-if="block.name.toLowerCase().includes('polichinelo') || block.name.toLowerCase().includes('jack')" class="btn-action ai-btn" @click="enableAICamera('jumping_jack')">🤖 Contar Polichinelos</button>
+                <button v-if="block.name.toLowerCase().includes('agachamento') || block.name.toLowerCase().includes('squat')" class="btn-action ai-btn" @click="enableAICamera('squat')">🤖 Contar Agachamentos</button>
               </div>
             </template>
 

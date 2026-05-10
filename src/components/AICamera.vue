@@ -1,6 +1,10 @@
 <script setup>
 import { ref, onMounted, onUnmounted, watch, computed } from 'vue'
 import { useAIStore } from '../store/ai'
+import { audioService } from '../utils/audio'
+import pushupImg from '../assets/instructions/pushup.png'
+import jackImg from '../assets/instructions/jumping_jack.png'
+import squatImg from '../assets/instructions/squat.png'
 
 const props = defineProps({
   targetCount: {
@@ -119,41 +123,53 @@ const detectPose = async () => {
       let activeSide = null
       if (leftElbow && leftElbow.score > 0.3 && rightElbow && rightElbow.score > 0.3) {
         activeSide = leftElbow.score > rightElbow.score ? 'left' : 'right'
-      } else if (leftElbow && leftElbow.score > 0.3) {
-        activeSide = 'left'
-      } else if (rightElbow && rightElbow.score > 0.3) {
-        activeSide = 'right'
-      }
+      const shoulder = keypoints.find(k => k.name === 'left_shoulder')
+      const elbow = keypoints.find(k => k.name === 'left_elbow')
+      const wrist = keypoints.find(k => k.name === 'left_wrist')
 
-      if (activeSide) {
-        const shoulder = activeSide === 'left' ? leftShoulder : rightShoulder
-        const elbow = activeSide === 'left' ? leftElbow : rightElbow
-        const wrist = activeSide === 'left' ? leftWrist : rightWrist
-
-        if (shoulder && wrist && shoulder.score > 0.3 && wrist.score > 0.3) {
-          const angle = calculateAngle(shoulder, elbow, wrist)
-
-          if (angle > 150) {
-            if (exerciseState.value === 'down') {
-              count.value += 1
-              exerciseState.value = 'up'
-              emit('count-updated', count.value)
-              if (count.value >= props.targetCount) emit('completed')
-            }
-          } else if (angle < 90) {
-            exerciseState.value = 'down'
-          }
-
-          ctx.fillStyle = 'white'
-          ctx.font = '24px Arial'
-          ctx.fillText(`${Math.round(angle)}°`, elbow.x + 15, elbow.y)
+      if (shoulder?.score > 0.3 && elbow?.score > 0.3 && wrist?.score > 0.3) {
+        const angle = calculateAngle(shoulder, elbow, wrist)
+        
+        if (angle < 90 && exerciseState.value === 'up') {
+          exerciseState.value = 'down'
+        }
+        if (angle > 150 && exerciseState.value === 'down') {
+          exerciseState.value = 'up'
+          count.value++
+          emit('count-updated', count.value)
+          if (count.value >= props.targetCount) emit('completed')
         }
       }
-    } else if (props.mode === 'jumping_jack') {
-      // Jumping Jack Logic
-      if (leftWrist && rightWrist && leftShoulder && rightShoulder && nose &&
-          leftWrist.score > 0.3 && rightWrist.score > 0.3 && nose.score > 0.3) {
+    } 
+    // Lógica para Agachamento (Squat)
+    else if (props.mode === 'squat') {
+      const hip = keypoints.find(k => k.name === 'left_hip')
+      const knee = keypoints.find(k => k.name === 'left_knee')
+      const ankle = keypoints.find(k => k.name === 'left_ankle')
+
+      if (hip?.score > 0.3 && knee?.score > 0.3 && ankle?.score > 0.3) {
+        const angle = calculateAngle(hip, knee, ankle)
         
+        if (angle < 100 && exerciseState.value === 'up') {
+          exerciseState.value = 'down'
+        }
+        if (angle > 150 && exerciseState.value === 'down') {
+          exerciseState.value = 'up'
+          count.value++
+          emit('count-updated', count.value)
+          if (count.value >= props.targetCount) emit('completed')
+        }
+      }
+    }
+    // Lógica para Polichinelo (Jumping Jack)
+    else if (props.mode === 'jumping_jack') {
+      const leftWrist = keypoints.find(k => k.name === 'left_wrist')
+      const rightWrist = keypoints.find(k => k.name === 'right_wrist')
+      const leftShoulder = keypoints.find(k => k.name === 'left_shoulder')
+      const rightShoulder = keypoints.find(k => k.name === 'right_shoulder')
+      const nose = keypoints.find(k => k.name === 'nose')
+
+      if (leftWrist?.score > 0.3 && rightWrist?.score > 0.3 && nose?.score > 0.3) {
         const isHandsUp = leftWrist.y < nose.y && rightWrist.y < nose.y
         const isHandsDown = leftWrist.y > leftShoulder.y && rightWrist.y > rightShoulder.y
 
@@ -161,7 +177,7 @@ const detectPose = async () => {
           exerciseState.value = 'up'
         } else if (isHandsDown) {
           if (exerciseState.value === 'up') {
-            count.value += 1
+            count.value++
             exerciseState.value = 'down'
             emit('count-updated', count.value)
             if (count.value >= props.targetCount) emit('completed')
@@ -207,7 +223,7 @@ onMounted(() => {
   if (props.active) {
     start()
   } else {
-    loadModel() // pre-load in background
+    loadModel()
   }
 })
 
@@ -221,16 +237,29 @@ onUnmounted(() => {
     <div v-if="isModelLoading" class="loading-overlay">
       <div class="onboarding-content">
         <div class="instruction-card">
-          <div class="exercise-preview">
-            <img v-if="mode === 'pushup'" src="../assets/instructions/pushup.png" alt="Instrução Flexão" />
-            <img v-else src="../assets/instructions/jumping_jack.png" alt="Instrução Polichinelo" />
+          <div class="instruction-visual">
+            <img v-if="mode === 'pushup'" :src="pushupImg" alt="Pushup Guide" />
+            <img v-else-if="mode === 'squat'" :src="squatImg" alt="Squat Guide" />
+            <img v-else :src="jackImg" alt="Jumping Jack Guide" />
           </div>
+
           <div class="tips-area">
-            <h3>{{ mode === 'pushup' ? 'Como fazer a Flexão' : 'Como fazer o Polichinelo' }}</h3>
+            <h3>
+              {{ 
+                mode === 'pushup' ? 'Como fazer a Flexão' : 
+                mode === 'squat' ? 'Como fazer o Agachamento' : 
+                'Como fazer o Polichinelo' 
+              }}
+            </h3>
             <ul class="tips-list">
               <template v-if="mode === 'pushup'">
                 <li>Mantenha as costas retas e o core ativado.</li>
                 <li>Desça até os cotovelos formarem 90 graus.</li>
+              </template>
+              <template v-else-if="mode === 'squat'">
+                <li>Mantenha os pés na largura dos ombros.</li>
+                <li>Desça o quadril até as coxas ficarem paralelas ao chão.</li>
+                <li>Mantenha o peito aberto e olhe para frente.</li>
               </template>
               <template v-else>
                 <li>Pule afastando pés e mãos simultaneamente.</li>
