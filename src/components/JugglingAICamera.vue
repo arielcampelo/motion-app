@@ -43,6 +43,7 @@ const MAX_BALLS = 5
 const lastAction = ref('') 
 const showFeedback = ref(false)
 const debugTime = ref('') 
+const debugPointsCount = ref(0)
 let prevFrameData = null // Para detecção de movimento
 
 const initCamera = async () => {
@@ -206,31 +207,36 @@ const processFrame = async () => {
   let pointsFound = 0
 
   if (prevFrameData) {
-    // Comparar frame atual com o anterior
-    for (let i = 0; i < pixels.length; i += 4 * 10) { // Salto maior para performance
+    // Limiar de movimento: usa tolerance como base
+    const motionThreshold = 40
+
+    for (let i = 0; i < pixels.length; i += 4 * 8) {
       const r = pixels[i], g = pixels[i+1], b = pixels[i+2]
       const pr = prevFrameData[i], pg = prevFrameData[i+1], pb = prevFrameData[i+2]
-      
-      // Diferença absoluta de brilho/cor
+
       const diff = Math.abs(r - pr) + Math.abs(g - pg) + Math.abs(b - pb)
-      
-      // Se houve movimento significativo (> 60)
-      if (diff > 60) {
+
+      if (diff > motionThreshold) {
+        // Se há cores calibradas, filtra pelo cor da bola + tolerance
+        if (targetColors.value.length > 0) {
+          const colorMatch = targetColors.value.some(tc => {
+            const colorDist = Math.abs(r - tc.r) + Math.abs(g - tc.g) + Math.abs(b - tc.b)
+            return colorDist < tolerance.value * 3
+          })
+          if (!colorMatch) continue
+        }
+
         const x = (i / 4) % outCanvas.width
         const y = Math.floor((i / 4) / outCanvas.width)
-        
+
         // MÁSCARA DE MÃO: Ignorar movimento muito perto dos pulsos (ruído da mão)
-        const isNearHand = handKeypoints.some(hand => 
+        const isNearHand = handKeypoints.some(hand =>
           Math.hypot(x - hand.x, y - hand.y) < 50
         )
 
         if (!isNearHand) {
           detectedPoints.push({ x, y })
           pointsFound++
-          
-          // Debug visual opcional (pontinho ciano para movimento)
-          outCtx.fillStyle = 'rgba(0, 255, 255, 0.5)'
-          outCtx.fillRect(x, y, 2, 2)
         }
       }
     }

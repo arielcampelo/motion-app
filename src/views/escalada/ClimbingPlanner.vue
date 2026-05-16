@@ -33,16 +33,13 @@ const removeExercise = (index) => {
 
 const startSession = () => {
   const sessionId = Date.now().toString()
-  
   store.activeSession = {
     id: sessionId,
     name: sessionName.value,
     modalityId: 'escalada',
     exercises: [...exercises.value]
   }
-  // For now, redirect to hub since active session view doesn't exist for climbing yet
-  router.push(`/modality/escalada`)
-  alert('Sessão iniciada! (Em desenvolvimento)')
+  router.push(`/modality/escalada/session/${sessionId}`)
 }
 
 const goBack = () => router.push(`/modality/escalada`)

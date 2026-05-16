@@ -46,9 +46,19 @@ const router = createRouter({
       component: () => import('../views/escalada/ClimbingPlanner.vue')
     },
     {
+      path: '/modality/escalada/session/:sessionId',
+      name: 'escalada-session',
+      component: () => import('../views/escalada/ClimbingActiveSession.vue')
+    },
+    {
       path: '/modality/natacao/planner',
       name: 'natacao-planner',
       component: () => import('../views/natacao/SwimmingPlanner.vue')
+    },
+    {
+      path: '/modality/natacao/session/:sessionId',
+      name: 'natacao-session',
+      component: () => import('../views/natacao/SwimmingActiveSession.vue')
     },
     {
       path: '/modality/:id',
