@@ -35,20 +35,34 @@ let detector = null
 let animationId = null
 let stream = null
 
+const debugText = ref("Iniciando componente...")
+
 const initCamera = async () => {
+  debugText.value = "Verificando permissões..."
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+    debugText.value = "Erro: Sem suporte a mediaDevices (Verifique HTTPS)"
+    alert("A câmera não é suportada neste navegador ou você não está usando uma conexão segura (HTTPS).")
+    return
+  }
   try {
+    debugText.value = "Solicitando câmera ao navegador..."
     stream = await navigator.mediaDevices.getUserMedia({ 
       video: { width: 640, height: 480, facingMode: 'user' } 
     })
+    debugText.value = "Câmera autorizada. Vinculando vídeo..."
     if (videoRef.value) {
       videoRef.value.srcObject = stream
       await new Promise(resolve => {
         videoRef.value.onloadedmetadata = () => resolve()
       })
-      videoRef.value.play()
+      debugText.value = "Metadados carregados. Iniciando play..."
+      await videoRef.value.play()
+      debugText.value = "Vídeo em reprodução!"
     }
   } catch (e) {
+    debugText.value = "Erro: " + e.message
     console.error("Erro ao iniciar câmera", e)
+    alert("Erro ao iniciar câmera: Verifique as permissões de vídeo do seu navegador.")
   }
 }
 
@@ -64,25 +78,33 @@ const calculateAngle = (a, b, c) => {
 }
 
 const detectPose = async () => {
-  const detector = aiStore.detector
-  if (!detector || !videoRef.value || !canvasRef.value) return
+  if (!videoRef.value || !canvasRef.value) {
+    if (props.active) animationId = requestAnimationFrame(detectPose)
+    return
+  }
 
   const video = videoRef.value
   const canvas = canvasRef.value
   const ctx = canvas.getContext('2d')
-
-  canvas.width = video.videoWidth
-  canvas.height = video.videoHeight
-
-  const poses = await detector.estimatePoses(video)
   
-  ctx.clearRect(0, 0, canvas.width, canvas.height)
-  ctx.drawImage(video, 0, 0, canvas.width, canvas.height)
+  if (video.readyState >= 2 && video.videoWidth > 0) { // HAVE_CURRENT_DATA
+    canvas.width = video.videoWidth
+    canvas.height = video.videoHeight
+    video.width = video.videoWidth
+    video.height = video.videoHeight
+    
+    ctx.clearRect(0, 0, canvas.width, canvas.height)
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height)
 
-  if (poses.length > 0) {
-    const keypoints = poses[0].keypoints
+    const detector = aiStore.detector
+    if (detector) {
+      try {
+        const poses = await detector.estimatePoses(video)
+        
+        if (poses.length > 0) {
+          const keypoints = poses[0].keypoints
 
-    const validPoints = keypoints.filter(k => k.score > 0.3)
+          const validPoints = keypoints.filter(k => k.score > 0.3)
     
     ctx.fillStyle = '#10b981'
     validPoints.forEach(point => {
@@ -166,7 +188,7 @@ const detectPose = async () => {
       const rightShoulder = keypoints.find(k => k.name === 'right_shoulder')
       const nose = keypoints.find(k => k.name === 'nose')
 
-      if (leftWrist?.score > 0.3 && rightWrist?.score > 0.3 && nose?.score > 0.3) {
+      if (leftWrist?.score > 0.3 && rightWrist?.score > 0.3 && nose?.score > 0.3 && leftShoulder?.score > 0.3 && rightShoulder?.score > 0.3) {
         const isHandsUp = leftWrist.y < nose.y && rightWrist.y < nose.y
         const isHandsDown = leftWrist.y > leftShoulder.y && rightWrist.y > rightShoulder.y
 
@@ -180,6 +202,12 @@ const detectPose = async () => {
             if (count.value >= props.targetCount) emit('completed')
           }
         }
+      }
+    }
+  }
+      } catch (err) {
+        console.error("Erro na detecção da pose:", err)
+        debugText.value = "IA Falhou: " + err.message.substring(0, 100)
       }
     }
   }
@@ -293,6 +321,7 @@ onUnmounted(() => {
     
     <div class="stats-overlay" v-if="!isModelLoading">
       <div class="counter">{{ count }} / {{ targetCount }}</div>
+      <div class="debug-badge">{{ debugText }}</div>
       <div class="state-badge" :class="exerciseState">
         <template v-if="mode === 'pushup'">
           {{ exerciseState === 'down' ? 'Suba!' : 'Desça' }}
@@ -338,15 +367,14 @@ onUnmounted(() => {
   background: #0f1115;
   color: white;
   z-index: 100;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 2rem;
+  overflow-y: auto;
+  padding: 2rem 1rem;
 }
 
 .onboarding-content {
   max-width: 500px;
   width: 100%;
+  margin: auto;
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
@@ -491,6 +519,15 @@ onUnmounted(() => {
   color: white;
   border: 1px solid rgba(255,255,255,0.1);
   backdrop-filter: blur(10px);
+}
+
+.debug-badge {
+  background: rgba(239, 68, 68, 0.8);
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  font-family: monospace;
 }
 
 .state-badge {

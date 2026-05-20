@@ -48,6 +48,10 @@ let prevFrameData = null // Para detecção de movimento
 
 const initCamera = async () => {
   console.log('Tentando acessar a câmera...')
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+    alert("A câmera não é suportada neste navegador ou você não está usando uma conexão segura (HTTPS).")
+    return
+  }
   try {
     stream = await navigator.mediaDevices.getUserMedia({ 
       video: { 

@@ -11,8 +11,9 @@ const modalityId = computed(() => route.params.id)
 const modalityName = computed(() => store.modalities.find(m => m.id === modalityId.value)?.name || 'Calistenia')
 
 const sessionName = ref(`Sessão de ${modalityName.value}`)
+const sessionRestTime = ref(60) // Tempo de descanso em segundos
 const exercises = ref([
-  { id: Date.now(), area: 'superior', name: 'Flexão', customName: '', sets: 3, reps: 10, weight: 0 }
+  { id: Date.now(), area: 'superior', name: 'Flexão', customName: '', sets: 3, reps: 10 }
 ])
 
 const availableTricks = computed(() => store.exercises.calistenia || { superior: [], core: [], inferior: [] })
@@ -24,8 +25,7 @@ const addExercise = () => {
     name: 'Flexão',
     customName: '',
     sets: 3,
-    reps: 10,
-    weight: 0
+    reps: 10
   })
 }
 
@@ -44,6 +44,7 @@ const startSession = () => {
   store.activeSession = {
     id: sessionId,
     name: sessionName.value,
+    restTime: sessionRestTime.value,
     modalityId: 'calistenia',
     exercises: finalExercises
   }
@@ -54,6 +55,7 @@ const goBack = () => router.push(`/modality/calistenia`)
 const saveAsTemplate = () => {
   store.saveTemplate({
     name: sessionName.value,
+    restTime: sessionRestTime.value,
     modalityId: 'calistenia',
     exercises: JSON.parse(JSON.stringify(exercises.value))
   })
@@ -64,6 +66,7 @@ const loadTemplate = (templateId) => {
   const tpl = store.savedTemplates.find(t => t.id === templateId)
   if (tpl) {
     sessionName.value = tpl.name
+    sessionRestTime.value = tpl.restTime || 60
     exercises.value = JSON.parse(JSON.stringify(tpl.exercises))
   }
 }
@@ -95,6 +98,11 @@ const myTemplates = computed(() => store.savedTemplates.filter(t => t.modalityId
       <div class="form-group">
         <label>Nome do Treino</label>
         <input v-model="sessionName" type="text" class="input-field" />
+      </div>
+
+      <div class="form-group" style="margin-top: 1rem;">
+        <label>Tempo de Descanso entre as Séries (segundos)</label>
+        <input v-model="sessionRestTime" type="number" min="0" class="input-field" />
       </div>
 
       <div class="divider"></div>
@@ -134,11 +142,6 @@ const myTemplates = computed(() => store.savedTemplates.filter(t => t.modalityId
           <div class="form-group">
             <label>Reps</label>
             <input v-model="ex.reps" type="number" min="1" class="input-field" />
-          </div>
-
-          <div class="form-group">
-            <label>Peso (kg)</label>
-            <input v-model="ex.weight" type="number" min="0" class="input-field" />
           </div>
 
           <button @click="removeExercise(index)" class="btn-icon delete-btn">×</button>
@@ -249,7 +252,7 @@ h3 {
 
 .exercise-row {
   display: grid;
-  grid-template-columns: 1fr 1.5fr 0.8fr 0.8fr 0.8fr 40px;
+  grid-template-columns: 1fr 1.5fr 0.8fr 0.8fr 40px;
   gap: 1rem;
   align-items: flex-end;
   background: rgba(255,255,255,0.02);

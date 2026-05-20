@@ -27,7 +27,6 @@ if (session.value) {
         name: ex.name,
         area: ex.area,
         reps: ex.reps,
-        weight: ex.weight,
         setNumber: i + 1,
         totalSets: ex.sets,
         state: 'idle', // idle, running, done
@@ -57,8 +56,11 @@ const expandedId = ref(null)
 const useAICamera = ref(false)
 const aiMode = ref('pushup')
 
-// Rest duration based on user level
+// Rest duration based on user level or session settings
 const getRestDuration = () => {
+  if (session.value.restTime !== undefined && session.value.restTime !== null) {
+    return session.value.restTime
+  }
   const level = userStore.user.level
   if (level === 'Avançado') return 30
   if (level === 'Intermediário') return 45
@@ -213,7 +215,7 @@ onUnmounted(() => {
           <div class="block-drag-handle">⋮⋮</div>
           <div class="block-info">
             <h3>{{ block.name }}</h3>
-            <span class="block-meta">Série {{ block.setNumber }}/{{ block.totalSets }} • {{ block.reps }} reps {{ block.weight > 0 ? `+${block.weight}kg` : '' }}</span>
+            <span class="block-meta">Série {{ block.setNumber }}/{{ block.totalSets }} • {{ block.reps }} reps</span>
           </div>
           <div class="block-status">
             <span v-if="block.state === 'done'">✅</span>
@@ -248,15 +250,19 @@ onUnmounted(() => {
             </template>
 
             <template v-else>
-              <div class="camera-container">
-                <AICamera 
-                  :active="!isPaused" 
-                  :targetCount="block.reps" 
-                  :mode="aiMode"
-                  @completed="completeBlock(block)"
-                />
-              </div>
-              <button class="btn-cancel" @click="useAICamera = false">Cancelar Câmera</button>
+              <Teleport to="body">
+                <div class="fullscreen-camera-overlay animate-fade-in">
+                  <div class="camera-container-full">
+                    <AICamera 
+                      :active="!isPaused" 
+                      :targetCount="block.reps" 
+                      :mode="aiMode"
+                      @completed="completeBlock(block)"
+                    />
+                    <button class="btn-cancel-floating" @click="useAICamera = false">Fechar Câmera</button>
+                  </div>
+                </div>
+              </Teleport>
             </template>
 
           </div>
@@ -447,15 +453,50 @@ onUnmounted(() => {
   box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
 }
 
-.btn-cancel {
-  background: transparent;
-  color: var(--text-secondary);
+.fullscreen-camera-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.camera-container-full {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.camera-container-full :deep(.ai-camera-wrapper) {
+  width: 100%;
+  height: 100%;
+  border-radius: 0;
   border: none;
-  font-size: 0.9rem;
-  padding: 8px;
+}
+
+.btn-cancel-floating {
+  position: absolute;
+  top: 2rem;
+  right: 2rem;
+  background: rgba(0, 0, 0, 0.6);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: var(--radius-full);
+  padding: 10px 20px;
+  font-size: 1rem;
+  font-weight: bold;
   cursor: pointer;
-  margin-top: 0.5rem;
-  text-decoration: underline;
+  z-index: 10000;
+  backdrop-filter: blur(5px);
+}
+
+.btn-cancel-floating:hover {
+  background: rgba(239, 68, 68, 0.8);
 }
 
 .rest-overlay {
