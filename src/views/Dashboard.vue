@@ -8,8 +8,9 @@ const router = useRouter()
 
 const modalities = computed(() => store.modalities)
 
-const navigateToModality = (id) => {
-  router.push(`/modality/${id}`)
+const navigateToModality = (mod) => {
+  if (mod.comingSoon) return
+  router.push(`/modality/${mod.id}`)
 }
 </script>
 
@@ -31,17 +32,21 @@ const navigateToModality = (id) => {
           v-for="mod in modalities" 
           :key="mod.id" 
           class="modality-card glass-panel"
-          @click="navigateToModality(mod.id)"
+          :class="{ 'is-disabled': mod.comingSoon }"
+          @click="navigateToModality(mod)"
           :style="{ '--mod-color': mod.color }"
         >
           <div class="mod-icon-wrapper">
             <span class="mod-icon">{{ mod.icon }}</span>
           </div>
           <div class="mod-info">
-            <h3>{{ mod.name }}</h3>
+            <h3 class="mod-title">
+              {{ mod.name }}
+              <span v-if="mod.comingSoon" class="coming-soon-badge">Em breve</span>
+            </h3>
             <p>{{ mod.desc }}</p>
           </div>
-          <div class="mod-arrow">→</div>
+          <div class="mod-arrow" v-if="!mod.comingSoon">→</div>
         </div>
       </div>
     </section>
@@ -183,5 +188,31 @@ const navigateToModality = (id) => {
   opacity: 1;
   transform: translateX(0);
   color: var(--mod-color);
+}
+
+.modality-card.is-disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.modality-card.is-disabled:hover {
+  transform: none;
+  box-shadow: none;
+  border-color: transparent;
+}
+
+.mod-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.coming-soon-badge {
+  font-size: 0.75rem;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 2px 8px;
+  border-radius: 4px;
+  color: rgba(255, 255, 255, 0.7);
+  font-weight: normal;
 }
 </style>

@@ -10,8 +10,7 @@ export const useWorkoutStore = defineStore('workout', {
       modalities: [
         { id: 'calistenia', name: 'Calistenia', icon: '🤸‍♂️', color: '#10b981', desc: 'Séries, repetições e peso corporal' },
         { id: 'malabarismo', name: 'Malabarismo', icon: '🤹', color: '#8b5cf6', desc: 'Bolas, claves e truques' },
-        { id: 'escalada', name: 'Escalada', icon: '🧗', color: '#f59e0b', desc: 'Graus (V-scale), tops e tentativas' },
-        { id: 'natacao', name: 'Natação', icon: '🏊‍♂️', color: '#3b82f6', desc: 'Distância, tempo e estilos' }
+        { id: 'natacao', name: 'Natação', icon: '🏊‍♂️', color: '#3b82f6', desc: 'Distância, tempo e estilos', comingSoon: true }
       ],
       exercises: {
         'malabarismo': { bolas: jugglingTricks.bolas, claves: jugglingTricks.claves },
