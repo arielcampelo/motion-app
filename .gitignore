@@ -12,6 +12,7 @@ dist
 dist-ssr
 *.local
 ROADMAP.md
+src/data/*ontology.ttl
 
 # Editor directories and files
 .vscode/*

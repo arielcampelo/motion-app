@@ -3,35 +3,35 @@
   --font-heading: 'Outfit', sans-serif;
   --font-body: 'Inter', sans-serif;
 
-  /* Color Palette - Premium Dark Mode */
-  --bg-base: #0f1115;
-  --bg-surface: #1a1d24;
-  --bg-surface-elevated: #232730;
+  /* Color Palette - Obsidian Cyberpunk Mode */
+  --bg-base: #07060b;
+  --bg-surface: #110e18;
+  --bg-surface-elevated: #1a1626;
   
   --text-primary: #ffffff;
-  --text-secondary: #9ca3af;
-  --text-tertiary: #6b7280;
+  --text-secondary: #a8a4bf;
+  --text-tertiary: #6d6985;
   
   /* Accents */
-  --accent-primary: #8b5cf6; /* Vibrant Purple */
-  --accent-primary-hover: #7c3aed;
-  --accent-secondary: #10b981; /* Emerald Green for success/growth */
-  --accent-gradient: linear-gradient(135deg, #8b5cf6 0%, #3b82f6 100%);
+  --accent-primary: #d946ef; /* Neon Magenta */
+  --accent-primary-hover: #c084fc;
+  --accent-secondary: #10b981; /* Emerald Green */
+  --accent-gradient: linear-gradient(135deg, #d946ef 0%, #8b5cf6 100%);
   
   /* Borders and UI */
-  --border-subtle: rgba(255, 255, 255, 0.05);
-  --border-light: rgba(255, 255, 255, 0.1);
+  --border-subtle: rgba(217, 70, 239, 0.04);
+  --border-light: rgba(255, 255, 255, 0.08);
   --radius-sm: 8px;
   --radius-md: 16px;
   --radius-lg: 24px;
   --radius-full: 9999px;
 
   /* Shadows & Glass */
-  --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
-  --shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.4);
-  --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.3);
-  --glass-bg: rgba(26, 29, 36, 0.7);
-  --glass-border: rgba(255, 255, 255, 0.08);
+  --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
+  --shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.6);
+  --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.7), 0 8px 10px -6px rgba(0, 0, 0, 0.5);
+  --glass-bg: rgba(17, 14, 24, 0.75);
+  --glass-border: rgba(217, 70, 239, 0.08);
   
   /* Animations */
   --transition-fast: 0.15s cubic-bezier(0.4, 0, 0.2, 1);

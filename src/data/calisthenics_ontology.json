@@ -1,0 +1,222 @@
+{
+  "Flexão Inclinada": {
+    "name": "Flexão Inclinada",
+    "area": "superior",
+    "type": "dynamic",
+    "unit": "reps",
+    "level": "iniciante",
+    "requirements": [],
+    "description": "Flexão de braços com as mãos apoiadas em uma superfície elevada para reduzir a carga.",
+    "suggestion": "Ideal para iniciantes. Faça movimentos controlados e tente realizar 3 séries de 12 repetições antes de evoluir para a flexão tradicional."
+  },
+  "Flexão": {
+    "name": "Flexão",
+    "area": "superior",
+    "type": "dynamic",
+    "unit": "reps",
+    "level": "iniciante",
+    "requirements": ["Flexão Inclinada"],
+    "description": "Flexão de braços tradicional no solo, mantendo o corpo rígido como uma prancha.",
+    "suggestion": "Mantenha os cotovelos apontados levemente para trás (cerca de 45 graus) para proteger os ombros. Tente completar 3 séries de 10-15 reps."
+  },
+  "Dips": {
+    "name": "Dips",
+    "area": "superior",
+    "type": "dynamic",
+    "unit": "reps",
+    "level": "intermediario",
+    "requirements": ["Flexão"],
+    "description": "Desenvolvimento em barras paralelas, suspendendo e erguendo o próprio corpo.",
+    "suggestion": "Trabalha peito e tríceps. Desça até que os ombros fiquem ligeiramente abaixo dos cotovelos. Se for muito difícil, treine descidas lentas (excêntricas)."
+  },
+  "Muscle Up": {
+    "name": "Muscle Up",
+    "area": "superior",
+    "type": "dynamic",
+    "unit": "reps",
+    "level": "avancado",
+    "requirements": ["Barra Fixa", "Dips"],
+    "description": "Movimento avançado que combina uma puxada explosiva com uma transição rápida para um dip sobre a barra.",
+    "suggestion": "Exige bastante força explosiva e estabilidade de ombros. Certifique-se de dominar pelo menos 12 barras e 15 paralelas limpas antes de tentar."
+  },
+  "Barra Australiana": {
+    "name": "Barra Australiana",
+    "area": "superior",
+    "type": "dynamic",
+    "unit": "reps",
+    "level": "iniciante",
+    "requirements": [],
+    "description": "Puxada horizontal sob uma barra baixa com os calcanhares no solo.",
+    "suggestion": "Excelente para treinar a musculatura das costas sem a carga total do peso corporal. Foque em encostar o peito na barra."
+  },
+  "Barra (Pendurado)": {
+    "name": "Barra (Pendurado)",
+    "area": "superior",
+    "type": "isometric",
+    "unit": "seconds",
+    "level": "iniciante",
+    "requirements": [],
+    "description": "Sustentação isométrica pendurado na barra para fortalecer a pegada e descomprimir a coluna.",
+    "suggestion": "Como este exercício é isométrico, o progresso é medido em **segundos**. Tente sustentar a posição de forma ativa (escapulas ativas) por 30 a 60 segundos."
+  },
+  "Barra Fixa": {
+    "name": "Barra Fixa",
+    "area": "superior",
+    "type": "dynamic",
+    "unit": "reps",
+    "level": "intermediario",
+    "requirements": ["Barra Australiana", "Barra (Pendurado)"],
+    "description": "Puxada vertical tradicional erguendo o corpo até passar o queixo da barra.",
+    "suggestion": "Suba de forma controlada sem balançar o corpo (kipping). Se necessário, utilize um elástico de resistência (superband) para auxiliar."
+  },
+  "Suporte nas Argolas": {
+    "name": "Suporte nas Argolas",
+    "area": "superior",
+    "type": "isometric",
+    "unit": "seconds",
+    "level": "intermediario",
+    "requirements": ["Dips"],
+    "description": "Sustentação isométrica do corpo nas argolas em posição estendida alta.",
+    "suggestion": "Exercício isométrico (medido em **segundos**). Gire as argolas levemente para fora (RTO) e mantenha os braços completamente esticados. Tente acumular 20-30s."
+  },
+  "Front Lever": {
+    "name": "Front Lever",
+    "area": "superior",
+    "type": "isometric",
+    "unit": "seconds",
+    "level": "avancado",
+    "requirements": ["Barra Fixa", "Hollow Body"],
+    "description": "Sustentação isométrica do corpo completamente horizontal sob a barra suspensa.",
+    "suggestion": "Exercício de elite medido em **segundos**. Inicie praticando variações mais fáceis como o Tuck Front Lever (pernas encolhidas) ou Advanced Tuck."
+  },
+  "Planche": {
+    "name": "Planche",
+    "area": "superior",
+    "type": "isometric",
+    "unit": "seconds",
+    "level": "avancado",
+    "requirements": ["Suporte nas Argolas", "Prancha"],
+    "description": "Apoio das mãos no solo ou paralelas mantendo o corpo totalmente horizontal suspenso.",
+    "suggestion": "Requer força extrema nos ombros e tendões. Exercício isométrico medido em **segundos**. Treine a inclinação (Planche Lean) e flexões pseudo-planche antes."
+  },
+  "Prancha": {
+    "name": "Prancha",
+    "area": "core",
+    "type": "isometric",
+    "unit": "seconds",
+    "level": "iniciante",
+    "requirements": [],
+    "description": "Sustentação isométrica de antebraços e pés no solo com coluna neutra.",
+    "suggestion": "Como a Prancha é um exercício isométrico, ela é medida em **segundos**. Evite deixar o quadril cair ou levantar demais. Contraia glúteos e abdômen para proteger a lombar. Foque em atingir 60 segundos estáticos!"
+  },
+  "Hollow Body": {
+    "name": "Hollow Body",
+    "area": "core",
+    "type": "isometric",
+    "unit": "seconds",
+    "level": "iniciante",
+    "requirements": ["Prancha"],
+    "description": "Posição isométrica no solo elevando ombros e pernas, mantendo a região lombar colada no chão.",
+    "suggestion": "Exercício isométrico (medido em **segundos**). O segredo é não deixar nenhum espaço entre a lombar e o chão. Comece segurando por 20 segundos."
+  },
+  "Abdominal Infra": {
+    "name": "Abdominal Infra",
+    "area": "core",
+    "type": "dynamic",
+    "unit": "reps",
+    "level": "iniciante",
+    "requirements": [],
+    "description": "Elevação das pernas estendidas deitado ou suspenso para focar no abdômen inferior.",
+    "suggestion": "Faça o movimento de forma lenta, focando na contração e evitando dar impulsos (roubar) com o quadril."
+  },
+  "L-Sit": {
+    "name": "L-Sit",
+    "area": "core",
+    "type": "isometric",
+    "unit": "seconds",
+    "level": "intermediario",
+    "requirements": ["Abdominal Infra", "Barra (Pendurado)"],
+    "description": "Apoio nas mãos ou paralelas com as pernas totalmente estendidas para frente em 90 graus.",
+    "suggestion": "Exercício isométrico medido em **segundos**. Empurre o chão com força para baixo para criar espaço. Se as pernas tremerem ou caírem, dobre um pouco os joelhos (Tuck L-Sit)."
+  },
+  "Dragon Flag": {
+    "name": "Dragon Flag",
+    "area": "core",
+    "type": "dynamic",
+    "unit": "reps",
+    "level": "avancado",
+    "requirements": ["Hollow Body", "L-Sit"],
+    "description": "Elevação e descida controlada do corpo rígido apoiado apenas nas escápulas e ombros.",
+    "suggestion": "Exige controle abdominal extremo. Tente focar na descida lenta e controlada (fase negativa) mantendo o corpo rígido como uma tábua."
+  },
+  "Agachamento (Squat)": {
+    "name": "Agachamento (Squat)",
+    "area": "inferior",
+    "type": "dynamic",
+    "unit": "reps",
+    "level": "iniciante",
+    "requirements": [],
+    "description": "Agachamento livre clássico usando o peso corporal.",
+    "suggestion": "Mantenha a sola dos pés totalmente firme no chão e os joelhos alinhados com a ponta dos pés. Tente fazer 3 séries de 15 a 20 repetições."
+  },
+  "Bulgarian Split Squat": {
+    "name": "Bulgarian Split Squat",
+    "area": "inferior",
+    "type": "dynamic",
+    "unit": "reps",
+    "level": "intermediario",
+    "requirements": ["Agachamento (Squat)"],
+    "description": "Agachamento unilateral com o pé traseiro apoiado em uma superfície elevada.",
+    "suggestion": "Excelente para corrigir assimetrias musculares e de força. Faça movimentos lentos e controle a descida."
+  },
+  "Pistol Squat": {
+    "name": "Pistol Squat",
+    "area": "inferior",
+    "type": "dynamic",
+    "unit": "reps",
+    "level": "avancado",
+    "requirements": ["Bulgarian Split Squat"],
+    "description": "Agachamento unilateral profundo mantendo a perna oposta estendida à frente no ar.",
+    "suggestion": "Requer força e muita mobilidade de tornozelo. Se perder o equilíbrio, utilize uma coluna ou barra lateral como apoio de segurança leve."
+  },
+  "Nordic Curl": {
+    "name": "Nordic Curl",
+    "area": "inferior",
+    "type": "dynamic",
+    "unit": "reps",
+    "level": "avancado",
+    "requirements": ["Agachamento (Squat)"],
+    "description": "Flexão de joelhos ajoelhado com os tornozelos fixados no solo, descendo o tronco de forma controlada.",
+    "suggestion": "Foco extremo na fase excêntrica (descida lenta). Use as mãos para se empurrar de volta suavemente na fase concêntrica."
+  },
+  "Polichinelo": {
+    "name": "Polichinelo",
+    "area": "cardio",
+    "type": "dynamic",
+    "unit": "reps",
+    "level": "iniciante",
+    "requirements": [],
+    "description": "Exercício cardiovascular abrindo e fechando braços e pernas de forma rítmica.",
+    "suggestion": "Amorteça a queda com a ponta dos pés e mantenha uma respiração ritmada."
+  },
+  "Montanha Alpinista": {
+    "name": "Montanha Alpinista",
+    "area": "cardio",
+    "type": "dynamic",
+    "unit": "reps",
+    "level": "iniciante",
+    "requirements": ["Prancha"],
+    "description": "Posição de prancha alta alternando joelhos em direção ao peito simulando uma corrida horizontal.",
+    "suggestion": "Excelente para ganho aeróbico e estabilidade de core. Mantenha o quadril alinhado com o tronco sem empinar o bumbum."
+  },
+  "Burpee": {
+    "name": "Burpee",
+    "area": "cardio",
+    "type": "dynamic",
+    "unit": "reps",
+    "level": "intermediario",
+    "requirements": ["Flexão", "Polichinelo"],
+    "description": "Exercício dinâmico e integrado de alta intensidade (agachamento, flexão e salto).",
+    "suggestion": "Ideal para condicionamento físico geral. Tente manter a constância e não faça pausas longas entre os movimentos."
+  }
+}

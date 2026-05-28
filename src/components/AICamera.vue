@@ -364,7 +364,7 @@ onUnmounted(() => {
 .loading-overlay {
   position: absolute;
   inset: 0;
-  background: #0f1115;
+  background: var(--bg-surface);
   color: white;
   z-index: 100;
   overflow-y: auto;

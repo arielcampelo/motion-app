@@ -52,9 +52,22 @@ const isResting = ref(false)
 const restTimeLeft = ref(0)
 let restInterval = null
 
+const blockTimeLeft = ref(0)
+let blockInterval = null
+
 const expandedId = ref(null)
 const useAICamera = ref(false)
 const aiMode = ref('pushup')
+
+const isIsometric = (name) => {
+  const ontologyEntry = store.calisthenicsOntology[name]
+  return ontologyEntry && ontologyEntry.type === 'isometric'
+}
+
+const getExerciseUnitLabel = (name) => {
+  const info = store.calisthenicsOntology[name]
+  return info && info.unit === 'seconds' ? 's' : ' reps'
+}
 
 // Rest duration based on user level or session settings
 const getRestDuration = () => {
@@ -87,12 +100,36 @@ const startBlock = (index) => {
   isPaused.value = false
   
   audioService.playStart()
+
+  if (isIsometric(block.name)) {
+    blockTimeLeft.value = Number(block.reps)
+    if (blockInterval) clearInterval(blockInterval)
+    blockInterval = setInterval(() => {
+      if (!isPaused.value) {
+        blockTimeLeft.value--
+        
+        if (blockTimeLeft.value > 0 && blockTimeLeft.value <= 3) {
+          audioService.playCountdown(blockTimeLeft.value)
+        }
+        
+        if (blockTimeLeft.value <= 0) {
+          clearInterval(blockInterval)
+          blockInterval = null
+          completeBlock(block)
+        }
+      }
+    }, 1000)
+  }
 }
 
 const completeBlock = (block) => {
   block.state = 'done'
   useAICamera.value = false
   isPaused.value = false
+  if (blockInterval) {
+    clearInterval(blockInterval)
+    blockInterval = null
+  }
   
   const nextIndex = sessionBlocks.value.findIndex((b, idx) => b.state === 'idle' && idx > sessionBlocks.value.indexOf(block))
   
@@ -170,6 +207,7 @@ const finishSession = () => {
 
 onUnmounted(() => {
   stopRest()
+  if (blockInterval) clearInterval(blockInterval)
 })
 </script>
 
@@ -215,7 +253,7 @@ onUnmounted(() => {
           <div class="block-drag-handle">⋮⋮</div>
           <div class="block-info">
             <h3>{{ block.name }}</h3>
-            <span class="block-meta">Série {{ block.setNumber }}/{{ block.totalSets }} • {{ block.reps }} reps</span>
+            <span class="block-meta">Série {{ block.setNumber }}/{{ block.totalSets }} • {{ block.reps }}{{ getExerciseUnitLabel(block.name) }}</span>
           </div>
           <div class="block-status">
             <span v-if="block.state === 'done'">✅</span>
@@ -233,19 +271,30 @@ onUnmounted(() => {
             <button class="btn-action start-btn" @click="startBlock(index)">▶ Iniciar Série</button>
           </div>
 
-          <div v-else-if="block.state === 'running'" class="action-center">
+          <div class="action-center" v-else-if="block.state === 'running'">
             
             <template v-if="!useAICamera">
               <div class="running-info">
-                <div class="big-number">{{ block.reps }}</div>
-                <div class="countdown-text">repetições</div>
+                <template v-if="isIsometric(block.name)">
+                  <div class="big-number timer-digits">{{ blockTimeLeft }}s</div>
+                  <div class="countdown-text">tempo restante</div>
+                  <div class="progress-bar-bg">
+                    <div class="progress-bar-fill" :style="{ width: (blockTimeLeft / block.reps) * 100 + '%' }"></div>
+                  </div>
+                </template>
+                <template v-else>
+                  <div class="big-number">{{ block.reps }}</div>
+                  <div class="countdown-text">repetições</div>
+                </template>
               </div>
               
               <div class="buttons-row">
-                <button class="btn-action complete-btn" @click="completeBlock(block)">✓ Concluir Manualmente</button>
-                <button v-if="block.name.toLowerCase().includes('flexão') || block.name.toLowerCase().includes('push')" class="btn-action ai-btn" @click="enableAICamera('pushup')">🤖 Contar Flexões</button>
-                <button v-if="block.name.toLowerCase().includes('polichinelo') || block.name.toLowerCase().includes('jack')" class="btn-action ai-btn" @click="enableAICamera('jumping_jack')">🤖 Contar Polichinelos</button>
-                <button v-if="block.name.toLowerCase().includes('agachamento') || block.name.toLowerCase().includes('squat')" class="btn-action ai-btn" @click="enableAICamera('squat')">🤖 Contar Agachamentos</button>
+                <button class="btn-action complete-btn" @click="completeBlock(block)">
+                  {{ isIsometric(block.name) ? '✓ Pular / Concluir' : '✓ Concluir Manualmente' }}
+                </button>
+                <button v-if="!isIsometric(block.name) && (block.name.toLowerCase().includes('flexão') || block.name.toLowerCase().includes('push'))" class="btn-action ai-btn" @click="enableAICamera('pushup')">🤖 Contar Flexões</button>
+                <button v-if="!isIsometric(block.name) && (block.name.toLowerCase().includes('polichinelo') || block.name.toLowerCase().includes('jack'))" class="btn-action ai-btn" @click="enableAICamera('jumping_jack')">🤖 Contar Polichinelos</button>
+                <button v-if="!isIsometric(block.name) && (block.name.toLowerCase().includes('agachamento') || block.name.toLowerCase().includes('squat'))" class="btn-action ai-btn" @click="enableAICamera('squat')">🤖 Contar Agachamentos</button>
               </div>
             </template>
 
@@ -550,5 +599,26 @@ onUnmounted(() => {
 .pause-notice p {
   font-size: 1.2rem;
   color: var(--text-secondary);
+}
+
+.progress-bar-bg {
+  width: 200px;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-full);
+  margin-top: 1rem;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: var(--accent-primary, #8b5cf6);
+  border-radius: var(--radius-full);
+  transition: width 1s linear;
+}
+
+.timer-digits {
+  font-variant-numeric: tabular-nums;
+  color: #f59e0b !important;
 }
 </style>
